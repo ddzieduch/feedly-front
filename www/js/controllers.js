@@ -1,8 +1,9 @@
 var apiUrl = "http://ec2-52-29-87-189.eu-central-1.compute.amazonaws.com/app_dev.php/feed";
 var saveForLaterUrl = "http://ec2-52-29-87-189.eu-central-1.compute.amazonaws.com/app_dev.php/saveForLater";
+var markAsReadUrl = "http://ec2-52-29-87-189.eu-central-1.compute.amazonaws.com/app_dev.php/markAsRead";
 var mockApiUrl = "http://private-fa233-ttsfeedlybff.apiary-mock.com/feed";
 
-angular.module('starter.controllers', ['ionic'])
+angular.module('starter.controllers', ['ionic'] )
 
 .controller('AppCtrl', function($scope, $ionicModal, $timeout) {
 
@@ -56,19 +57,38 @@ angular.module('starter.controllers', ['ionic'])
   ];
 })
 
-.controller('JSONCtrl', function($scope, $http,$httpParamSerializer) {
+.controller('JSONCtrl', function($scope, $http,$httpParamSerializer, $ionicPopup) {
   $http.get(apiUrl).then(function (response) {
       $scope.items = response.data.items;
       $scope.activeItem = $scope.items[0];
   });
   
+  	$scope.prev = function() {
+	  	if($scope.index > 0 ) {
+		  	$scope.index--;
+		  	$scope.activeItem = $scope.items[$scope.index];
+		  	$scope.speakText($scope.activeItem);
+	  	}
+  	}
+  	$scope.next = function() {
+		  	$scope.index++;
+		  	$scope.activeItem = $scope.items[$scope.index];
+		  	$scope.speakText($scope.activeItem);
+  	}
+  
   	$scope.isPlaying = false;
   	$scope.index = 0;
 			
 	$scope.speakText = function(text) {
-		concatedText = text.title;
+		if(text !== undefined && text.domain !== undefined) {
+			concatedText = text.domain;
+		} else {
+			concatedText = "";
+		}
+		
+		concatedText = concatedText + "..." + text.title;
 		if (text.summary !== undefined && text.summary.content !== undefined) {
-			concatedText = concatedText + text.summary.content;
+			concatedText = concatedText + "..." + text.summary.content;
 		}
 	TTS.speak({
 	       text: concatedText,
@@ -79,6 +99,11 @@ angular.module('starter.controllers', ['ionic'])
 	       	$scope.index++;
 	       	$scope.activeItem = angular.copy($scope.items[$scope.index]);
 	       	$scope.$apply();
+	       	$http({
+        	url: markAsReadUrl,
+			method: "POST",
+			data: {'itemIds':[text.id]}
+    	})
 	       	setTimeout(function(){$scope.speakText($scope.activeItem);}, 1000);
 	       }
 	   }, function (reason) {
@@ -107,6 +132,11 @@ angular.module('starter.controllers', ['ionic'])
 			data: objectToSerialize,
     	})
     	.success(function(data){
+			$scope.showAlert = function() {
+			
+		      alert('Post saved');
+		
+		   };
     	});
 	  }
 })

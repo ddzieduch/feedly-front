@@ -1,4 +1,4 @@
-<ion-view view-title="Playlists" ng-controller="JSONCtrl">
+<ion-view view-title="Selected Feeds" ng-controller="JSONCtrl">
   <ion-content>
   <div style="background-image:url({{activeItem.visual.url}})" scroll="false" class="item-container">
  <!--
@@ -17,16 +17,17 @@
 	<a ng-click="saveForLater(activeItem)"  class="item-element">
         <h2>{{activeItem.title}}</h2>
 		<p>{{activeItem.summary.content}}</p>
+		<small>{{activeItem.domain}}</small>
 		<div class="overlay"></div>
 	</a>
 </div>
   </div>
 	<div class="button-bar">
-	<button class="button button-full button-positive ion-ios-skipbackward" ng-click="speakText()">
+	<button class="button button-full button-positive ion-ios-skipbackward" ng-click="prev()">
     </button>
 	<button class="button button-full button-positive" ng-class="{'ion-arrow-right-b': isPlaying == false, 'ion-pause': isPlaying == true}" ng-click="togglePlay(activeItem)">
     </button>
-    <button class="button button-full button-positive ion-ios-skipforward" ng-click="speakText()">
+    <button class="button button-full button-positive ion-ios-skipforward" ng-click="next()">
     </button>
 	</div>
   </ion-content>
