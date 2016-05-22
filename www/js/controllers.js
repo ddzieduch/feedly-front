@@ -1,4 +1,5 @@
 var apiUrl = "http://ec2-52-29-87-189.eu-central-1.compute.amazonaws.com/app_dev.php/feed";
+var saveForLaterUrl = "http://ec2-52-29-87-189.eu-central-1.compute.amazonaws.com/app_dev.php/saveForLater";
 var mockApiUrl = "http://private-fa233-ttsfeedlybff.apiary-mock.com/feed";
 
 angular.module('starter.controllers', ['ionic'])
@@ -55,25 +56,30 @@ angular.module('starter.controllers', ['ionic'])
   ];
 })
 
-.controller('JSONCtrl', function($scope, $http) {
+.controller('JSONCtrl', function($scope, $http,$httpParamSerializer) {
   $http.get(apiUrl).then(function (response) {
       $scope.items = response.data.items;
       $scope.activeItem = $scope.items[0];
   });
+  
   	$scope.isPlaying = false;
-
+  	$scope.index = 0;
 			
 	$scope.speakText = function(text) {
+		concatedText = text.title;
+		if (text.summary !== undefined && text.summary.content !== undefined) {
+			concatedText = concatedText + text.summary.content;
+		}
 	TTS.speak({
-	       text: text.title + text.summary.content,
+	       text: concatedText,
 	       locale: text.locale,
 	       rate: 0.9
 	   }, function () {
 		   if ($scope.isPlaying == true) {
-	       	$scope.items.shift();
-	       	$scope.activeItem = $scope.items[0];
-	       	$apply();
-	       	setTimeout(function(){$scope.speakText($scope.activeItem);}, 2000);		   	
+	       	$scope.index++;
+	       	$scope.activeItem = angular.copy($scope.items[$scope.index]);
+	       	$scope.$apply();
+	       	setTimeout(function(){$scope.speakText($scope.activeItem);}, 1000);
 	       }
 	   }, function (reason) {
 	       // Handle the error case
@@ -84,11 +90,25 @@ angular.module('starter.controllers', ['ionic'])
 		$scope.isPlaying = !$scope.isPlaying;
 		if ($scope.isPlaying == true) {
 			$scope.speakText(text);
-			setTimeout(function(){}, 3000);
 		} else {
 			$scope.speakText({title: "", summary: {content: " "}});
 		}
 	};
+	
+	$scope.saveForLater = function (item) {
+
+      	
+      	var data = [item.id];
+	  	var objectToSerialize={'itemIds':data};
+
+	  	$http({
+        	url: saveForLaterUrl,
+			method: "POST",
+			data: objectToSerialize,
+    	})
+    	.success(function(data){
+    	});
+	  }
 })
 
 

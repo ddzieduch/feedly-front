@@ -1,6 +1,12 @@
 <ion-view view-title="Playlists" ng-controller="JSONCtrl">
   <ion-content>
-<!--
+  <div style="background-image:url({{activeItem.visual.url}})" scroll="false" class="item-container">
+ <!--
+    <ion-refresher
+    pulling-text="Pull to refresh..."
+    on-refresh="doRefresh()">
+  </ion-refresher>
+
     <ion-list>
       <ion-item ng-repeat="playlist in playlists" href="#/app/playlists/{{playlist.id}}">
         {{playlist.title}}
@@ -8,13 +14,13 @@
     </ion-list>
 -->
 <div>
-	<a href="#/app/playlists/{{playlist.id}}" style="background-image:url({{activeItem.visual.url}})" class="item-element">
+	<a ng-click="saveForLater(activeItem)"  class="item-element">
         <h2>{{activeItem.title}}</h2>
 		<p>{{activeItem.summary.content}}</p>
 		<div class="overlay"></div>
 	</a>
 </div>
-
+  </div>
 	<div class="button-bar">
 	<button class="button button-full button-positive ion-ios-skipbackward" ng-click="speakText()">
     </button>
